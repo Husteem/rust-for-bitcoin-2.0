@@ -67,15 +67,15 @@ test result: ok. 4 passed; 0 failed
 
 ## Evidence references
 
-- Funding UTXOs: 3 separate UTXOs of $0.40000000 \text{ BTC}$ each ($1.20000000 \text{ BTC}$ total).
+- Funding UTXOs: 3 separate UTXOs of 0.40000000 BTC each (1.20000000 BTC total).
 - Multi-input spend audit: Consumed 3 inputs (`funding-0:0`, `funding-1:0`, `funding-2:0`).
-- Payment and change: Payment output ($1.00000000 \text{ BTC}$), Change output ($0.19999000 \text{ BTC}$ to Alice change address).
-- Fee: $0.00001000 \text{ BTC}$ ($1000 \text{ satoshis}$).
+- Payment and change: Payment output (1.00000000 BTC), Change output (0.19999000 BTC to Alice change address).
+- Fee: 0.00001000 BTC (1,000 satoshis).
 - Test artifact: Passing `tests/lab_09.rs` test execution log.
 
 ## Explanation
 
 What multi-UTXO spending demonstrates about coin selection and privacy:
 
-- **Forced Multi-UTXO Coin Selection:** Alice has three $0.4 \text{ BTC}$ UTXOs. To send a $1.0 \text{ BTC}$ payment, no single UTXO is large enough, so the coin selection algorithm combines all three inputs ($0.4 + 0.4 + 0.4 = 1.2 \text{ BTC}$). All 3 inputs get spent, $1.0 \text{ BTC}$ goes to the receiver, $0.19999 \text{ BTC}$ returns as change, and $0.00001 \text{ BTC}$ goes to miner fee.
+- **Forced Multi-UTXO Coin Selection:** Alice has three 0.4 BTC UTXOs. To send a 1.0 BTC payment, no single UTXO is large enough, so the coin selection algorithm combines all three inputs (0.4 + 0.4 + 0.4 = 1.2 BTC). All 3 inputs get spent, 1.0 BTC goes to the receiver, 0.19999 BTC returns as change, and 0.00001 BTC goes to miner fee.
 - **Privacy Trade-Off (Common-Input Ownership Heuristic):** When multiple UTXOs are spent together as inputs in one transaction, chain analysis software applies the Common-Input Ownership Heuristic (CIOH). The assumption is that all inputs consumed in a single transaction belong to the same wallet entity. Combining UTXOs links previously separate addresses together on the public blockchain, creating a privacy trade-off.

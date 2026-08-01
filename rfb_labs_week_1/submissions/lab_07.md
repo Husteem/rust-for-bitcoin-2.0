@@ -57,7 +57,7 @@ test result: ok. 4 passed; 0 failed
 ## Evidence references
 
 - Mempool eviction: `getrawmempool` returned `[]` (transaction moved to block).
-- Receiver balance state: Receiver balance transitioned from `untrusted_pending` to `trusted` ($1.0 \text{ BTC}$).
+- Receiver balance state: Receiver balance transitioned from `untrusted_pending` to `trusted` (1.0 BTC).
 - Block membership: Block `15434a...` contains `tx: ["coinbase-txid", "7c9b8a..."]`.
 - Test artifact: Passing `tests/lab_07.rs` test execution log.
 

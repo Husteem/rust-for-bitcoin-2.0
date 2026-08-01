@@ -63,11 +63,11 @@ test result: ok. 4 passed; 0 failed
 
 ## Evidence references
 
-- Input total: $1.50000000 \text{ BTC}$ (spent from previous `4a5e1e...:0`).
-- Payment output: $1.00000000 \text{ BTC}$ (`vout 0` to `bcrt1qreceiver`).
-- Change output: $0.49999000 \text{ BTC}$ (`vout 1` to `bcrt1qchange`).
-- Calculated fee: $0.00001000 \text{ BTC}$ ($1000 \text{ satoshis}$).
-- Value conservation: $1.50000000 = 1.00000000 + 0.49999000 + 0.00001000$.
+- Input total: 1.50000000 BTC (spent from previous `4a5e1e...:0`).
+- Payment output: 1.00000000 BTC (`vout 0` to `bcrt1qreceiver`).
+- Change output: 0.49999000 BTC (`vout 1` to `bcrt1qchange`).
+- Calculated fee: 0.00001000 BTC (1,000 satoshis).
+- Value conservation: 1.50000000 = 1.00000000 + 0.49999000 + 0.00001000.
 - Test artifact: Passing `tests/lab_06.rs` test execution log.
 
 ## Explanation
@@ -75,7 +75,7 @@ test result: ok. 4 passed; 0 failed
 Here is what auditing raw transaction data shows about value conservation:
 
 - **Value Conservation:** Every satoshi spent as an input must be accounted for in the transaction:
-  $$\text{sum(inputs)} = \text{sum(payments)} + \text{sum(change)} + \text{miner fee}$$
+  `sum(inputs) = sum(payments) + sum(change) + miner fee`
 - **Why Miner Fees Are Implicit:** Notice there is no explicit `vout` output for the miner fee. Instead, fee is calculated as:
-  $$\text{fee} = \text{sum(inputs)} - \text{sum(outputs)}$$
+  `fee = sum(inputs) - sum(outputs)`
   If Bitcoin forced every transaction to include a dedicated fee `vout` script, it would add extra vbytes to every transaction and bloat the UTXO set with short-lived outputs. Leaving fee as an implicit leftover value saves space, and whichever miner builds the block gets to claim all unassigned leftover input values inside their coinbase output.

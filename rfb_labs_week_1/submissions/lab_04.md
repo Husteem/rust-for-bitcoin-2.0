@@ -46,7 +46,7 @@ test result: ok. 4 passed; 0 failed
 
 - Outpoint identifier: `txid: 4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b`, `vout: 0`.
 - Locking script: `scriptPubKey: 0014a1b2c3d4e5f60718293a4b5c6d7e8f9012345678` (P2WPKH script).
-- UTXO set reconciliation: Sum of spendable UTXOs ($50.0 \text{ BTC}$) equals `getbalance` ($50.0 \text{ BTC}$).
+- UTXO set reconciliation: Sum of spendable UTXOs (50.0 BTC) equals `getbalance` (50.0 BTC).
 - Test artifact: Passing `tests/lab_04.rs` test execution log.
 
 ## Explanation
