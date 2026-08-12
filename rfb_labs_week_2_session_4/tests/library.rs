@@ -40,7 +40,6 @@ fn library_with_items() -> Library {
 // implement the TODOs. Remove `#[ignore]` from one test at a time while working.
 
 #[test]
-#[ignore = "enable after completing Parts 3 and 5"]
 fn checkout_updates_both_the_item_and_the_member() {
     let mut library = library_with_items();
 
@@ -57,7 +56,6 @@ fn checkout_updates_both_the_item_and_the_member() {
 }
 
 #[test]
-#[ignore = "enable after completing Part 5"]
 fn a_member_cannot_exceed_the_borrow_limit() {
     let mut library = library_with_items();
 
@@ -75,7 +73,6 @@ fn a_member_cannot_exceed_the_borrow_limit() {
 }
 
 #[test]
-#[ignore = "enable after completing Parts 4 and 6"]
 fn returning_a_book_late_charges_a_daily_fee() {
     let mut library = library_with_items();
 
@@ -94,7 +91,6 @@ fn returning_a_book_late_charges_a_daily_fee() {
 }
 
 #[test]
-#[ignore = "enable after completing Part 3"]
 fn searching_by_author_borrows_rather_than_clones() {
     let library = library_with_items();
 
@@ -104,4 +100,165 @@ fn searching_by_author_borrows_rather_than_clones() {
     assert_eq!(found[0].title, "Dune");
     // `found` holds references into `library`, so these are the same item.
     assert!(std::ptr::eq(found[0], library.find_item(1).unwrap()));
+}
+
+#[test]
+fn cannot_checkout_twice() {
+    let mut library = library_with_items();
+    library.checkout(1, 100, 0).unwrap();
+
+    assert_eq!(
+        library.checkout(1, 100, 0),
+        Err(LibraryError::ItemAlreadyOnLoan {
+            id: 1,
+            member_id: 100
+        })
+    );
+}
+
+#[test]
+fn on_time_return_owes_nothing() {
+    let mut library = library_with_items();
+    library.checkout(1, 100, 10).unwrap();
+    // Book has 21 days checkout period. 10 + 21 = 31.
+    assert_eq!(library.return_item(1, 31), Ok(0));
+}
+
+#[test]
+fn ebook_returned_late_owes_nothing() {
+    let mut library = library_with_items();
+    // 4 is the ebook "The Rust Programming Language"
+    library.checkout(4, 100, 10).unwrap();
+    // Ebook has 7 days. Returned at 100 (90 days late). Still owes nothing.
+    assert_eq!(library.return_item(4, 100), Ok(0));
+}
+
+#[test]
+fn author_search_returns_borrowed_items() {
+    let mut library = library_with_items();
+    library.checkout(1, 100, 0).unwrap();
+
+    let found = library.items_by_author("Frank Herbert");
+    assert_eq!(found.len(), 2);
+    assert!(found.iter().any(|i| i.title == "Dune"));
+}
+
+#[test]
+fn test_checkout_validation_errors() {
+    let mut library = library_with_items();
+
+    assert_eq!(
+        library.checkout(999, 100, 0),
+        Err(LibraryError::ItemNotFound { id: 999 })
+    );
+
+    assert_eq!(
+        library.checkout(1, 999, 0),
+        Err(LibraryError::MemberNotFound { id: 999 })
+    );
+}
+
+#[test]
+fn test_lost_item_checkout() {
+    let mut library = Library::new();
+    library
+        .register_member(Member::new(100, "Ada".into()))
+        .unwrap();
+    let mut item = Item::new(
+        5,
+        "Lost Book".into(),
+        "Author".into(),
+        MediaKind::Book { pages: 100 },
+    );
+    item.status = LoanStatus::Lost;
+    library.add_item(item).unwrap();
+
+    assert_eq!(
+        library.checkout(5, 100, 0),
+        Err(LibraryError::ItemIsLost { id: 5 })
+    );
+}
+
+#[test]
+fn test_duplicate_add_and_empty_title() {
+    let mut library = Library::new();
+
+    let item_empty = Item::new(
+        1,
+        "".into(),
+        "Author".into(),
+        MediaKind::Book { pages: 100 },
+    );
+    assert_eq!(library.add_item(item_empty), Err(LibraryError::EmptyTitle));
+
+    let item1 = Item::new(
+        1,
+        "Book 1".into(),
+        "Author".into(),
+        MediaKind::Book { pages: 100 },
+    );
+    library.add_item(item1).unwrap();
+    let item2 = Item::new(
+        1,
+        "Book 2".into(),
+        "Author".into(),
+        MediaKind::Book { pages: 100 },
+    );
+    assert_eq!(
+        library.add_item(item2),
+        Err(LibraryError::DuplicateItemId { id: 1 })
+    );
+
+    library
+        .register_member(Member::new(100, "Ada".into()))
+        .unwrap();
+    assert_eq!(
+        library.register_member(Member::new(100, "Bob".into())),
+        Err(LibraryError::DuplicateMemberId { id: 100 })
+    );
+}
+
+#[test]
+fn test_return_validation_errors() {
+    let mut library = library_with_items();
+
+    assert_eq!(
+        library.return_item(999, 10),
+        Err(LibraryError::ItemNotFound { id: 999 })
+    );
+
+    let mut item_lost = Item::new(
+        5,
+        "Lost".into(),
+        "Author".into(),
+        MediaKind::Book { pages: 100 },
+    );
+    item_lost.status = LoanStatus::Lost;
+    library.add_item(item_lost).unwrap();
+    assert_eq!(
+        library.return_item(5, 10),
+        Err(LibraryError::ItemIsLost { id: 5 })
+    );
+
+    assert_eq!(
+        library.return_item(1, 10),
+        Err(LibraryError::ItemNotOnLoan { id: 1 })
+    );
+
+    library.checkout(1, 100, 10).unwrap();
+    assert_eq!(
+        library.return_item(1, 5),
+        Err(LibraryError::InvalidReturnDay {
+            day_borrowed: 10,
+            day_returned: 5
+        })
+    );
+}
+
+#[test]
+fn test_longest_loan_item() {
+    let library = library_with_items();
+    let longest = library.longest_loan_item().unwrap();
+    use rfb_labs_week_2_session_4::LoanTerms;
+    assert_eq!(longest.loan_days(), 21);
 }

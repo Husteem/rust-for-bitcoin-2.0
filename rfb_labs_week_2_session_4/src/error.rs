@@ -41,10 +41,44 @@ pub enum LibraryError {
 }
 
 impl fmt::Display for LibraryError {
-    fn fmt(&self, _formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // TODO(Part 2): return a useful, human-readable message for every
-        // variant. Include the ids and numbers the variant carries.
-        todo!("implement Display for LibraryError")
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::EmptyTitle => write!(f, "Item title cannot be empty"),
+            Self::DuplicateItemId { id } => {
+                write!(f, "Library already contains an item with ID {}", id)
+            }
+            Self::DuplicateMemberId { id } => {
+                write!(f, "Library already has a member registered with ID {}", id)
+            }
+            Self::ItemNotFound { id } => write!(f, "Item with ID {} not found", id),
+            Self::MemberNotFound { id } => write!(f, "Member with ID {} not found", id),
+            Self::ItemAlreadyOnLoan { id, member_id } => {
+                write!(
+                    f,
+                    "Item {} is already checked out by member {}",
+                    id, member_id
+                )
+            }
+            Self::ItemNotOnLoan { id } => write!(f, "Item {} is not currently on loan", id),
+            Self::ItemIsLost { id } => write!(f, "Item {} has been marked as lost", id),
+            Self::BorrowLimitReached { member_id, limit } => {
+                write!(
+                    f,
+                    "Member {} has reached their borrowing limit of {} items",
+                    member_id, limit
+                )
+            }
+            Self::InvalidReturnDay {
+                day_borrowed,
+                day_returned,
+            } => {
+                write!(
+                    f,
+                    "Invalid return day: item was borrowed on day {}, but returned on day {}",
+                    day_borrowed, day_returned
+                )
+            }
+        }
     }
 }
 
